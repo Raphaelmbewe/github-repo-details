@@ -1,11 +1,14 @@
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-nocheck
-import axios from 'axios';
+import axios, { AxiosRequestConfig } from 'axios';
 
+type RequestConfig = AxiosRequestConfig & {
+  contentType?: string;
+};
 
-export const fetchRequest =
-  request => success => failed => async dispatch => {
-    axios({
+export const fetchRequest = async (request: RequestConfig) => {
+  try {
+    const response = await axios({
       method: 'GET',
       headers: {
         'Content-type': request.contentType
@@ -14,15 +17,11 @@ export const fetchRequest =
       },
       withCredentials: false,
       ...request,
-    })
-      .then(async response => {
-        dispatch(success({ response: response.data }));
-      })
-      .catch(error => {
-        if (error.response) {
-          dispatch(failed({ error: error?.response.data }));
-        } else {
-          dispatch(failed({ error: error?.message }));
-        }
-      });
-  };
+    });
+    return { response: response.data };
+  } catch (error) {
+    if (error.response) {
+      return { error: error?.message };
+    }
+  }
+};

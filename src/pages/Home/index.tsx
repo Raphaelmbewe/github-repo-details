@@ -1,29 +1,29 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useState } from "react";
-import { useSelector, useDispatch } from "react-redux";
 import Card from "../../components/atoms/Card";
 import Search from "../../components/atoms/Search";
-import { userSelector, getUser, clear } from "../../state/reducers/user";
-import { repoSelector, getRepos } from "../../state/reducers/repo";
 import Spinner from "../../components/atoms/Spinner";
 import RepoCard from "../../components/atoms/RepoCard";
 import { notify } from "../../helpers";
+import { useRepoStore } from "../../store/repo";
+import { useUserStore } from "../../store/user";
 
 const Home = () => {
   const [name, setName] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 4;
-  const { data, isLoading, error } = useSelector(userSelector);
-  const { repos } = useSelector(repoSelector);
-  const dispatch = useDispatch();
+  const repos = useRepoStore((state) => state.repos);
+  const data = useUserStore((state) => state.data);
+  const isLoading = useUserStore((state) => state.isLoading);
+  const error = useUserStore((state) => state.error);
 
   const handleChange = (e: any) => {
     setName(e.target.value);
   };
 
   const getUserInfo = () => {
-    dispatch(getUser(name) as any);
-    dispatch(getRepos(name) as any);
+    useUserStore.getState().getUser(name);
+    useRepoStore.getState().getRepo(name);
   };
 
   const handleNextPage = () => {
@@ -34,7 +34,7 @@ const Home = () => {
     setCurrentPage((prevPage) => Math.max(prevPage - 1, 1));
   };
 
-  const paginatedRepos = repos.slice(
+  const paginatedRepos = repos?.slice(
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
   );
@@ -42,9 +42,9 @@ const Home = () => {
   useEffect(() => {
     if (error) {
       notify("error", error);
-      dispatch(clear());
     }
   });
+  console.log("ERRORS:", error);
   return (
     <div className="w-full flex flex-col justify-center items-center">
       <p className="text-[30px] font-medium text-white py-10">
