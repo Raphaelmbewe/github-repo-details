@@ -44,7 +44,6 @@ const Home = () => {
       notify("error", error);
     }
   });
-  console.log("ERRORS:", error);
   return (
     <div className="w-full flex flex-col justify-center items-center">
       <p className="text-[30px] font-medium text-white py-10">
